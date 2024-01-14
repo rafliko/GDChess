@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://rb1l072mybbh"]
+
+[ext_resource type="Script" path="res://scenes/main.gd" id="1_88c4d"]
+[ext_resource type="Texture2D" uid="uid://cvwletbcusn57" path="res://textures/chessboard.png" id="1_qjtm7"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_88c4d")
+
+[node name="Chessboard" type="Sprite2D" parent="."]
+texture = ExtResource("1_qjtm7")
+centered = false
+
+[node name="Pieces" type="Node2D" parent="."]
