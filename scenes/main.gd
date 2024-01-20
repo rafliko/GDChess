@@ -3,9 +3,8 @@ extends Node2D
 var piece = preload("res://scenes/piece.tscn")
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
+func _ready():		
 	var instance
-	print(Global.board)
 	
 	for x in range(8):
 		for y in range(8):
