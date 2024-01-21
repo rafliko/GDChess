@@ -15,6 +15,7 @@ func _process(delta):
 		position = get_viewport().get_mouse_position()-Vector2(Global.unit/2,Global.unit/2)
 		
 func _on_request_completed(result, response_code, headers, body):
+	#stockfish move
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	if(json["data"].substr(0,8) != 'bestmove'): return
 	print(json["data"].substr(9,4))
@@ -28,6 +29,27 @@ func _on_request_completed(result, response_code, headers, body):
 				c.value = 'q'
 				Global.board[c.pos.y][c.pos.x] = c.value
 				c.get_node("Sprite2D").texture = load("res://textures/black/"+c.value+".png")
+			if c.value == 'k' and newpos.x - prevpos.x == 2: #castling kingside
+				Global.kcastling = false
+				Global.qcastling = false
+				Global.board[0][7] = '0'
+				Global.board[0][newpos.x-1] = 'r'
+				for c2 in get_node("..").get_children():
+					if c2.pos.x == 7 and c2.pos.y == 0:
+						c2.pos.x = newpos.x-1
+						c2.position = Vector2(c2.pos.x*Global.unit, c2.pos.y*Global.unit)
+			if c.value == 'k' and newpos.x - prevpos.x == -2: #castling queenside
+				Global.kcastling = false
+				Global.qcastling = false
+				Global.board[0][0] = '0'
+				Global.board[0][newpos.x+1] = 'r'
+				for c2 in get_node("..").get_children():
+					if c2.pos.x == 0 and c2.pos.y == 0:
+						c2.pos.x = newpos.x+1
+						c2.position = Vector2(c2.pos.x*Global.unit, c2.pos.y*Global.unit)
+			if c.value == 'r' and prevpos.x == 0: Global.qcastling = false
+			elif c.value == 'r' and prevpos.x == 7: Global.kcastling = false
+				
 			c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
 		elif c.pos.x == newpos.x and c.pos.y == newpos.y:
 			c.queue_free()
@@ -202,6 +224,12 @@ func checkLegal(prevpos, newpos):
 			var x = newpos.x
 			for y in range(prevpos.y+1,newpos.y):
 				if(Global.board[y][x]!='0'): return false
+		
+		#castling
+		if prevpos.x == 7 and prevpos.y==7:
+			Global.Kcastling = false
+		elif prevpos.x == 0 and prevpos.y==7:
+			Global.Qcastling = false
 	elif value=='B':
 		if abs(newpos.x-prevpos.x)!=abs(newpos.y-prevpos.y):
 			return false
@@ -226,8 +254,37 @@ func checkLegal(prevpos, newpos):
 			not (abs(newpos.x - prevpos.x) == 1 and abs(newpos.y - prevpos.y) == 2)):
 			return false
 	elif value=='K':
+		#castling
+		if (Global.Kcastling and newpos.x - prevpos.x == 2 and 
+			Global.board[newpos.y][newpos.x-1]=='0' and
+			Global.board[newpos.y][newpos.x]=='0'):
+			Global.Kcastling = false
+			Global.Qcastling = false
+			Global.board[7][7] = '0'
+			Global.board[7][newpos.x-1] = 'R'
+			for c in get_node("..").get_children():
+				if c.pos.x == 7 and c.pos.y == 7:
+					c.pos.x = newpos.x-1
+					c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
+			return true
+		if (Global.Qcastling and newpos.x - prevpos.x == -2 and 
+			Global.board[newpos.y][newpos.x+1]=='0' and
+			Global.board[newpos.y][newpos.x]=='0'):
+			Global.Kcastling = false
+			Global.Qcastling = false
+			Global.board[7][0] = '0'
+			Global.board[7][newpos.x+1] = 'R'
+			for c in get_node("..").get_children():
+				if c.pos.x == 0 and c.pos.y == 7:
+					c.pos.x = newpos.x+1
+					c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
+			return true
+		
 		if abs(newpos.x - prevpos.x) > 1 or abs(newpos.y - prevpos.y) > 1:
 			return false
+		else:
+			Global.Kcastling = false
+			Global.Qcastling = false
 	elif value=='Q':
 		if (newpos.x!=prevpos.x and newpos.y!=prevpos.y) and abs(newpos.x-prevpos.x)!=abs(newpos.y-prevpos.y):
 			return false

@@ -1,19 +1,24 @@
 extends Node
 
 var board = [ 
-	['r','n','b','q','k','b','n','r'],
-	['p','p','p','p','p','p','p','p'],
+	['r','0','0','0','k','0','0','r'],
+	['p','p','p','p','0','0','0','0'],
+	['0','0','0','0','0','n','0','0'],
 	['0','0','0','0','0','0','0','0'],
+	['0','0','0','0','P','0','0','0'],
 	['0','0','0','0','0','0','0','0'],
-	['0','0','0','0','0','0','0','0'],
-	['0','0','0','0','0','0','0','0'],
-	['P','P','P','P','P','P','P','P'],
-	['R','N','B','Q','K','B','N','R'],
+	['P','P','P','0','0','P','P','0'],
+	['R','0','0','0','K','0','0','R'],
 ]
 
 var unit = 96
 
 var turn = 'w'
+
+var Kcastling = true
+var Qcastling = true
+var kcastling = true
+var qcastling = true
 
 func isUpperCase(char):
 	if char >= 'A' and char <= 'Z': return true
@@ -35,7 +40,14 @@ func boardToFen():
 			emptycount = 0
 		if y<7: fenstring+='/'
 	
-	fenstring += ' '+turn+' - - 0 1'
+	var castling = ''
+	if Kcastling: castling+='K'
+	if Qcastling: castling+='Q'
+	if kcastling: castling+='k'
+	if qcastling: castling+='q'
+	if not Kcastling and not Qcastling and not kcastling and not qcastling: 
+		castling+='-'
+	fenstring += ' '+turn+' '+castling+' - 0 1'
 	
 	return fenstring
 
