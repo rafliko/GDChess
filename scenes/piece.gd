@@ -191,6 +191,17 @@ func checkLegal(prevpos, newpos):
 		(kingpos.x<7 and tmpboard[kingpos.y-1][kingpos.x+1]=='p') or 
 		(kingpos.x>0 and tmpboard[kingpos.y-1][kingpos.x-1]=='p')):
 		return false
+		
+	#king
+	if ((kingpos.x<7 and tmpboard[kingpos.y][kingpos.x+1]=='k') or 
+		(kingpos.x>0 and tmpboard[kingpos.y][kingpos.x-1]=='k') or
+		(kingpos.y<7 and tmpboard[kingpos.y+1][kingpos.x]=='k') or
+		(kingpos.y>0 and tmpboard[kingpos.y-1][kingpos.x]=='k') or
+		(kingpos.x<7 and kingpos.y<7 and tmpboard[kingpos.y+1][kingpos.x+1]=='k') or
+		(kingpos.x>0 and kingpos.y<7 and tmpboard[kingpos.y+1][kingpos.x-1]=='k') or
+		(kingpos.x<7 and kingpos.y>0 and tmpboard[kingpos.y-1][kingpos.x+1]=='k') or
+		(kingpos.x>0 and kingpos.y>0 and tmpboard[kingpos.y-1][kingpos.x-1]=='k')):
+		return false
 	
 	#############################################################################
 	
