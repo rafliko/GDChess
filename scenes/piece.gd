@@ -267,6 +267,7 @@ func checkLegal(prevpos, newpos):
 	elif value=='K':
 		#castling
 		if (Global.Kcastling and newpos.x - prevpos.x == 2 and 
+			prevpos.y == newpos.y and 
 			Global.board[newpos.y][newpos.x-1]=='0' and
 			Global.board[newpos.y][newpos.x]=='0'):
 			Global.Kcastling = false
@@ -279,6 +280,7 @@ func checkLegal(prevpos, newpos):
 					c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
 			return true
 		if (Global.Qcastling and newpos.x - prevpos.x == -2 and 
+			prevpos.y == newpos.y and 
 			Global.board[newpos.y][newpos.x+1]=='0' and
 			Global.board[newpos.y][newpos.x]=='0'):
 			Global.Kcastling = false
