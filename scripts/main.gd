@@ -8,14 +8,14 @@ func _ready():
 	
 	for x in range(8):
 		for y in range(8):
-			if Global.board[y][x] == '0': continue
+			if global.board[y][x] == '0': continue
 			instance = piece.instantiate()
 			instance.pos = {'x':x,'y':y}
-			instance.set("value",Global.board[y][x])
-			if Global.isUpperCase(Global.board[y][x][0]): #uppercase - white
-				instance.get_node("Sprite2D").texture = load("res://textures/white/"+Global.board[y][x]+".png")
+			instance.set("value",global.board[y][x])
+			if global.isUpperCase(global.board[y][x][0]): #uppercase - white
+				instance.get_node("Sprite2D").texture = load("res://textures/white/"+global.board[y][x]+".png")
 			else: #lowercase - black
-				instance.get_node("Sprite2D").texture = load("res://textures/black/"+Global.board[y][x]+".png")
+				instance.get_node("Sprite2D").texture = load("res://textures/black/"+global.board[y][x]+".png")
 			$Pieces.add_child(instance)
 
 

@@ -1,0 +1,64 @@
+[gd_scene load_steps=4 format=3 uid="uid://bogo2o0wbl5de"]
+
+[ext_resource type="Script" path="res://scripts/menu.gd" id="1_hu3so"]
+[ext_resource type="Texture2D" uid="uid://cvwletbcusn57" path="res://textures/chessboard.png" id="1_ljk3r"]
+[ext_resource type="FontFile" uid="uid://cgxib6dld4vqr" path="res://fonts/Montserrat-Bold.ttf" id="2_xg3li"]
+
+[node name="menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hu3so")
+
+[node name="Chessboard" type="Sprite2D" parent="."]
+texture = ExtResource("1_ljk3r")
+centered = false
+
+[node name="Chessboard2" type="Sprite2D" parent="Chessboard"]
+position = Vector2(768, 0)
+texture = ExtResource("1_ljk3r")
+centered = false
+
+[node name="Chessboard3" type="Sprite2D" parent="Chessboard"]
+position = Vector2(0, 768)
+texture = ExtResource("1_ljk3r")
+centered = false
+
+[node name="Chessboard4" type="Sprite2D" parent="Chessboard"]
+position = Vector2(768, 768)
+texture = ExtResource("1_ljk3r")
+centered = false
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 80.0
+offset_right = 983.0
+offset_bottom = 356.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_xg3li")
+theme_override_font_sizes/font_size = 100
+text = "GDCHESS"
+
+[node name="single" type="Button" parent="."]
+layout_mode = 0
+offset_left = 143.0
+offset_top = 332.0
+offset_right = 625.0
+offset_bottom = 415.0
+theme_override_fonts/font = ExtResource("2_xg3li")
+theme_override_font_sizes/font_size = 60
+text = "SINGLEPLAYER"
+
+[node name="multi" type="Button" parent="."]
+offset_left = 162.0
+offset_top = 438.0
+offset_right = 609.0
+offset_bottom = 521.0
+theme_override_fonts/font = ExtResource("2_xg3li")
+theme_override_font_sizes/font_size = 60
+disabled = true
+text = "MULTIPLAYER"

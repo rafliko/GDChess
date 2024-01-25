@@ -1,13 +1,17 @@
 [gd_scene load_steps=3 format=3 uid="uid://rb1l072mybbh"]
 
-[ext_resource type="Script" path="res://scenes/main.gd" id="1_88c4d"]
 [ext_resource type="Texture2D" uid="uid://cvwletbcusn57" path="res://textures/chessboard.png" id="1_qjtm7"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_y0qip"]
 
 [node name="Main" type="Node2D"]
-script = ExtResource("1_88c4d")
+script = ExtResource("1_y0qip")
 
 [node name="Chessboard" type="Sprite2D" parent="."]
 texture = ExtResource("1_qjtm7")
 centered = false
 
 [node name="Pieces" type="Node2D" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(384, 384)
+ignore_rotation = false

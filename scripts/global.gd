@@ -14,6 +14,8 @@ var board = [
 var unit = 96
 
 var turn = 'w'
+var playercolor = 'w'
+var aicolor = 'b'
 
 var Kcastling = true
 var Qcastling = true

@@ -7,12 +7,12 @@ var moving = false
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$HTTPRequest.request_completed.connect(_on_request_completed)
-	position = Vector2(pos.x*Global.unit, pos.y*Global.unit)
+	position = Vector2(pos.x*global.unit, pos.y*global.unit)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if moving:
-		position = get_viewport().get_mouse_position()-Vector2(Global.unit/2,Global.unit/2)
+		position = get_viewport().get_mouse_position()-Vector2(global.unit/2,global.unit/2)
 		
 func _on_request_completed(result, response_code, headers, body):
 	#stockfish move
@@ -21,45 +21,45 @@ func _on_request_completed(result, response_code, headers, body):
 	print(json["data"].substr(9,4))
 	var prevpos = {'x':0, 'y':0}
 	var newpos = {'x':0, 'y':0}
-	Global.moveToBoard(json["data"].substr(9,4),prevpos,newpos)
+	global.moveToBoard(json["data"].substr(9,4),prevpos,newpos)
 	for c in get_node("..").get_children():
 		if c.pos.x == prevpos.x and c.pos.y == prevpos.y: 
 			c.pos = newpos
 			if c.value == 'p' and c.pos.y == 7: #promote
 				c.value = 'q'
-				Global.board[c.pos.y][c.pos.x] = c.value
+				global.board[c.pos.y][c.pos.x] = c.value
 				c.get_node("Sprite2D").texture = load("res://textures/black/"+c.value+".png")
 			if c.value == 'k' and newpos.x - prevpos.x == 2: #castling kingside
-				Global.kcastling = false
-				Global.qcastling = false
-				Global.board[0][7] = '0'
-				Global.board[0][newpos.x-1] = 'r'
+				global.kcastling = false
+				global.qcastling = false
+				global.board[0][7] = '0'
+				global.board[0][newpos.x-1] = 'r'
 				for c2 in get_node("..").get_children():
 					if c2.pos.x == 7 and c2.pos.y == 0:
 						c2.pos.x = newpos.x-1
-						c2.position = Vector2(c2.pos.x*Global.unit, c2.pos.y*Global.unit)
+						c2.position = Vector2(c2.pos.x*global.unit, c2.pos.y*global.unit)
 			if c.value == 'k' and newpos.x - prevpos.x == -2: #castling queenside
-				Global.kcastling = false
-				Global.qcastling = false
-				Global.board[0][0] = '0'
-				Global.board[0][newpos.x+1] = 'r'
+				global.kcastling = false
+				global.qcastling = false
+				global.board[0][0] = '0'
+				global.board[0][newpos.x+1] = 'r'
 				for c2 in get_node("..").get_children():
 					if c2.pos.x == 0 and c2.pos.y == 0:
 						c2.pos.x = newpos.x+1
-						c2.position = Vector2(c2.pos.x*Global.unit, c2.pos.y*Global.unit)
-			if c.value == 'r' and prevpos.x == 0: Global.qcastling = false
-			elif c.value == 'r' and prevpos.x == 7: Global.kcastling = false
+						c2.position = Vector2(c2.pos.x*global.unit, c2.pos.y*global.unit)
+			if c.value == 'r' and prevpos.x == 0: global.qcastling = false
+			elif c.value == 'r' and prevpos.x == 7: global.kcastling = false
 				
-			c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
+			c.position = Vector2(c.pos.x*global.unit, c.pos.y*global.unit)
 		elif c.pos.x == newpos.x and c.pos.y == newpos.y:
 			c.queue_free()
-	Global.turn = 'w'
-	print(Global.boardToFen())
+	global.turn = global.playercolor
+	print(global.boardToFen())
 	$AudioStreamPlayer2D.play()
 
 func _input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
-		if $Sprite2D.get_rect().has_point(to_local(event.position)) and Global.isUpperCase(value):
+		if $Sprite2D.get_rect().has_point(to_local(event.position)) and global.isUpperCase(value):
 			$Sprite2D.z_index = 1
 			moving = true
 			print("clicked: "+value)
@@ -67,7 +67,7 @@ func _input(event):
 	if event is InputEventMouseButton and event.is_released():
 		if not moving: return
 		var prevpos = pos
-		pos = {'x':round(position.x/Global.unit),'y':round(position.y/Global.unit)}
+		pos = {'x':round(position.x/global.unit),'y':round(position.y/global.unit)}
 		if pos.x<0 or pos.x>7 or pos.y<0 or pos.y>7: pos = prevpos
 		if not checkLegal(prevpos, pos): pos = prevpos
 		else:
@@ -77,24 +77,24 @@ func _input(event):
 			if value=='P' and pos.y == 0: #promote
 				value = 'Q'
 				get_node("Sprite2D").texture = load("res://textures/white/"+value+".png")
-			Global.turn = 'b'
-			Global.board[prevpos.y][prevpos.x] = '0'
-			Global.board[pos.y][pos.x] = value
-			print(Global.boardToFen())
-			$HTTPRequest.request('https://stockfish.online/api/stockfish.php?fen='+Global.boardToFen()+'&depth=1&mode=bestmove')
+			global.turn = global.aicolor
+			global.board[prevpos.y][prevpos.x] = '0'
+			global.board[pos.y][pos.x] = value
+			print(global.boardToFen())
+			$HTTPRequest.request('https://stockfish.online/api/stockfish.php?fen='+global.boardToFen()+'&depth=1&mode=bestmove')
 			$AudioStreamPlayer2D.play()
-		position = Vector2(pos.x*Global.unit,pos.y*Global.unit)
+		position = Vector2(pos.x*global.unit,pos.y*global.unit)
 		$Sprite2D.z_index = 0
 		moving = false
 
 func checkLegal(prevpos, newpos):
-	if Global.isUpperCase(Global.board[newpos.y][newpos.x]) or Global.turn == 'b': 
+	if global.isUpperCase(global.board[newpos.y][newpos.x]) or global.turn == global.aicolor: 
 		return false
 		
 	#check for check
 	#############################################################################
 	
-	var tmpboard = Global.board.duplicate(true)
+	var tmpboard = global.board.duplicate(true)
 	tmpboard[prevpos.y][prevpos.x] = '0'
 	tmpboard[newpos.y][newpos.x] = value
 
@@ -212,9 +212,9 @@ func checkLegal(prevpos, newpos):
 		if (newpos.y >= prevpos.y or 
 		(prevpos.y!=6 and prevpos.y-newpos.y > 1) or 
 		(prevpos.y==6 and prevpos.y-newpos.y > 2) or 
-		(prevpos.x != newpos.x and Global.board[newpos.y][newpos.x] == '0') or 
-		(Global.board[newpos.y][newpos.x] != '0' and abs(prevpos.x-newpos.x)>1) or 
-		(prevpos.x == newpos.x and Global.board[newpos.y][newpos.x] != '0')): 
+		(prevpos.x != newpos.x and global.board[newpos.y][newpos.x] == '0') or 
+		(global.board[newpos.y][newpos.x] != '0' and abs(prevpos.x-newpos.x)>1) or 
+		(prevpos.x == newpos.x and global.board[newpos.y][newpos.x] != '0')): 
 			return false
 	elif value=='R':
 		if newpos.x!=prevpos.x and newpos.y!=prevpos.y:
@@ -222,82 +222,82 @@ func checkLegal(prevpos, newpos):
 		if newpos.x<prevpos.x:
 			var y = newpos.y
 			for x in range(newpos.x+1,prevpos.x):
-				if(Global.board[y][x]!='0'): return false
+				if(global.board[y][x]!='0'): return false
 		elif newpos.x>prevpos.x:
 			var y = newpos.y
 			for x in range(prevpos.x+1,newpos.x):
-				if(Global.board[y][x]!='0'): return false
+				if(global.board[y][x]!='0'): return false
 		elif newpos.y<prevpos.y:
 			var x = newpos.x
 			for y in range(newpos.y+1,prevpos.y):
-				if(Global.board[y][x]!='0'): return false
+				if(global.board[y][x]!='0'): return false
 		elif newpos.y>prevpos.y:
 			var x = newpos.x
 			for y in range(prevpos.y+1,newpos.y):
-				if(Global.board[y][x]!='0'): return false
+				if(global.board[y][x]!='0'): return false
 		
 		#castling
 		if prevpos.x == 7 and prevpos.y==7:
-			Global.Kcastling = false
+			global.Kcastling = false
 		elif prevpos.x == 0 and prevpos.y==7:
-			Global.Qcastling = false
+			global.Qcastling = false
 	elif value=='B':
 		if abs(newpos.x-prevpos.x)!=abs(newpos.y-prevpos.y):
 			return false
 		if newpos.x<prevpos.x && newpos.y<prevpos.y:
 			for x in range(newpos.x+1,prevpos.x):
 				for y in range(newpos.y+1,prevpos.y):
-					if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+					if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 		elif newpos.x>prevpos.x && newpos.y<prevpos.y:
 			for x in range(prevpos.x+1,newpos.x):
 				for y in range(newpos.y+1,prevpos.y):
-					if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+					if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 		elif newpos.x<prevpos.x && newpos.y>prevpos.y:
 			for x in range(newpos.x+1,prevpos.x):
 				for y in range(prevpos.y+1,newpos.y):
-					if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+					if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 		elif newpos.x>prevpos.x && newpos.y>prevpos.y:
 			for x in range(prevpos.x+1,newpos.x):
 				for y in range(prevpos.y+1,newpos.y):
-					if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+					if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 	elif value=='N':
 		if (not (abs(newpos.x - prevpos.x) == 2 and abs(newpos.y - prevpos.y) == 1) and 
 			not (abs(newpos.x - prevpos.x) == 1 and abs(newpos.y - prevpos.y) == 2)):
 			return false
 	elif value=='K':
 		#castling
-		if (Global.Kcastling and newpos.x - prevpos.x == 2 and 
+		if (global.Kcastling and newpos.x - prevpos.x == 2 and 
 			prevpos.y == newpos.y and 
-			Global.board[newpos.y][newpos.x-1]=='0' and
-			Global.board[newpos.y][newpos.x]=='0'):
-			Global.Kcastling = false
-			Global.Qcastling = false
-			Global.board[7][7] = '0'
-			Global.board[7][newpos.x-1] = 'R'
+			global.board[newpos.y][newpos.x-1]=='0' and
+			global.board[newpos.y][newpos.x]=='0'):
+			global.Kcastling = false
+			global.Qcastling = false
+			global.board[7][7] = '0'
+			global.board[7][newpos.x-1] = 'R'
 			for c in get_node("..").get_children():
 				if c.pos.x == 7 and c.pos.y == 7:
 					c.pos.x = newpos.x-1
-					c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
+					c.position = Vector2(c.pos.x*global.unit, c.pos.y*global.unit)
 			return true
-		if (Global.Qcastling and newpos.x - prevpos.x == -2 and 
+		if (global.Qcastling and newpos.x - prevpos.x == -2 and 
 			prevpos.y == newpos.y and 
-			Global.board[newpos.y][newpos.x+1]=='0' and
-			Global.board[newpos.y][newpos.x]=='0'):
-			Global.Kcastling = false
-			Global.Qcastling = false
-			Global.board[7][0] = '0'
-			Global.board[7][newpos.x+1] = 'R'
+			global.board[newpos.y][newpos.x+1]=='0' and
+			global.board[newpos.y][newpos.x]=='0'):
+			global.Kcastling = false
+			global.Qcastling = false
+			global.board[7][0] = '0'
+			global.board[7][newpos.x+1] = 'R'
 			for c in get_node("..").get_children():
 				if c.pos.x == 0 and c.pos.y == 7:
 					c.pos.x = newpos.x+1
-					c.position = Vector2(c.pos.x*Global.unit, c.pos.y*Global.unit)
+					c.position = Vector2(c.pos.x*global.unit, c.pos.y*global.unit)
 			return true
 		
 		if abs(newpos.x - prevpos.x) > 1 or abs(newpos.y - prevpos.y) > 1:
 			return false
 		else:
-			Global.Kcastling = false
-			Global.Qcastling = false
+			global.Kcastling = false
+			global.Qcastling = false
 	elif value=='Q':
 		if (newpos.x!=prevpos.x and newpos.y!=prevpos.y) and abs(newpos.x-prevpos.x)!=abs(newpos.y-prevpos.y):
 			return false
@@ -306,36 +306,36 @@ func checkLegal(prevpos, newpos):
 			if newpos.x<prevpos.x:
 				var y = newpos.y
 				for x in range(newpos.x+1,prevpos.x):
-					if(Global.board[y][x]!='0'): return false
+					if(global.board[y][x]!='0'): return false
 			elif newpos.x>prevpos.x:
 				var y = newpos.y
 				for x in range(prevpos.x+1,newpos.x):
-					if(Global.board[y][x]!='0'): return false
+					if(global.board[y][x]!='0'): return false
 			elif newpos.y<prevpos.y:
 				var x = newpos.x
 				for y in range(newpos.y+1,prevpos.y):
-					if(Global.board[y][x]!='0'): return false
+					if(global.board[y][x]!='0'): return false
 			elif newpos.y>prevpos.y:
 				var x = newpos.x
 				for y in range(prevpos.y+1,newpos.y):
-					if(Global.board[y][x]!='0'): return false
+					if(global.board[y][x]!='0'): return false
 		else:
 			if newpos.x<prevpos.x && newpos.y<prevpos.y:
 				for x in range(newpos.x+1,prevpos.x):
 					for y in range(newpos.y+1,prevpos.y):
-						if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+						if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 			elif newpos.x>prevpos.x && newpos.y<prevpos.y:
 				for x in range(prevpos.x+1,newpos.x):
 					for y in range(newpos.y+1,prevpos.y):
-						if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+						if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 			elif newpos.x<prevpos.x && newpos.y>prevpos.y:
 				for x in range(newpos.x+1,prevpos.x):
 					for y in range(prevpos.y+1,newpos.y):
-						if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+						if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 			elif newpos.x>prevpos.x && newpos.y>prevpos.y:
 				for x in range(prevpos.x+1,newpos.x):
 					for y in range(prevpos.y+1,newpos.y):
-						if(abs(newpos.x-x)==abs(newpos.y-y) && Global.board[y][x]!='0'): return false
+						if(abs(newpos.x-x)==abs(newpos.y-y) && global.board[y][x]!='0'): return false
 	
 	#############################################################################
 	
