@@ -212,6 +212,7 @@ func checkLegal(prevpos, newpos):
 		if (newpos.y >= prevpos.y or 
 		(prevpos.y!=6 and prevpos.y-newpos.y > 1) or 
 		(prevpos.y==6 and prevpos.y-newpos.y > 2) or 
+		(prevpos.y-newpos.y==2 and global.board[newpos.y+1][newpos.x] != '0') or
 		(prevpos.x != newpos.x and global.board[newpos.y][newpos.x] == '0') or 
 		(global.board[newpos.y][newpos.x] != '0' and abs(prevpos.x-newpos.x)>1) or 
 		(prevpos.x == newpos.x and global.board[newpos.y][newpos.x] != '0')): 
